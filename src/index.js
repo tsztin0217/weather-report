@@ -3,7 +3,7 @@
 // dotEnv.config();
 
 const state = {
-  temp: 60,
+  temp: 60
 };
 
 // ---------- Pure helpers ----------
@@ -59,9 +59,14 @@ const renderLandscape = () => {
   }
 };
 
+const renderCityName = (cityName) => {
+  state.cityNameDisplay.textContent = cityName;
+};
+
 const render = () => {
   renderTemp();
   renderLandscape();
+  renderCityName(state.cityNameInput.value);
 };
 
 // ---------- Events & initialization ----------
@@ -69,6 +74,7 @@ const render = () => {
 const registerEvents = () => {
   state.increaseTempControl.addEventListener('click', () => changeTemperatureBy(1));
   state.decreaseTempControl.addEventListener('click', () => changeTemperatureBy(-1));
+  state.cityNameInput.addEventListener('input', (event) => renderCityName(event.target.value));
 };
 
 const loadControls = () => {
@@ -77,6 +83,8 @@ const loadControls = () => {
   state.tempValue = document.getElementById('tempValue');
   state.sky = document.getElementById('sky');
   state.landscape = document.getElementById('landscape');
+  state.cityNameInput = document.getElementById('cityNameInput');
+  state.cityNameDisplay = document.getElementById('headerCityName');
 };
 
 loadControls();
