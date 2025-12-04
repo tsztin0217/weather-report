@@ -1,19 +1,10 @@
-// axios is loaded globally via CDN in index.html
-// No API keys needed here - the proxy server handles that!
+const state = {
+  temp: 60
+};
 
-// Example axios calls to proxy server:
-// axios.get('http://localhost:5000/location', {
-//     params: {
-//         q: cityName
-//     }
-// })
-// .then(response => {
-//     const lat = response.data[0].lat;
-//     const lon = response.data[0].lon;
-//     return axios.get('http://localhost:5000/weather', {
-//         params: { lat, lon }
-//     });
-// })
+
+
+// ---------- Pure helpers ----------
 
 const findLatitudeAndLongitude = async (query) => {
   try {
@@ -22,7 +13,6 @@ const findLatitudeAndLongitude = async (query) => {
         q: query,
       }
     });
-    console.log(`Latitude and Longitude for ${query}:`, response.data[0].lat, response.data[0].lon);
     return { latitude: response.data[0].lat, longitude: response.data[0].lon };
   } catch (error) {
     console.log(`Error searching ${query}:`, error.message);
@@ -30,15 +20,25 @@ const findLatitudeAndLongitude = async (query) => {
   }
 };
 
+const findTemFromCoordinates = async (lat, lon) => {
+  try {
+    const response = await axios.get('http://127.0.0.1:5000/weather', {
+      params: {
+        lat: lat,
+        lon: lon,
+      }}
+    );
+    return response.data.main.temp;
 
-
-const state = {
-  temp: 60
+  } catch (error) {
+    console.log(`Error getting temperature at (${lat}, ${lon}):`, error.message);
+    return null;
+  }
 };
 
-
-
-// ---------- Pure helpers ----------
+const convertKelvinToFahrenheit = (kelvinTemp) => {
+  return Math.round((kelvinTemp - 273.15) * 9/5 + 32);
+};
 
 const getTempColor = (temp) => {
   if (temp >= 80) return '#ff3333ff';
@@ -63,7 +63,11 @@ const createImage = (imgFileName) => {
 
 
 const getRealTimeTemperature = async (cityName) => {
-  await findLatitudeAndLongitude(cityName);
+  const coords = await findLatitudeAndLongitude(cityName);
+  const kelvinTemp = await findTemFromCoordinates(coords.latitude, coords.longitude);
+
+  state.temp = convertKelvinToFahrenheit(kelvinTemp);
+  render();
 
 };
 
@@ -114,7 +118,7 @@ const registerEvents = () => {
   state.decreaseTempControl.addEventListener('click', () => changeTemperatureBy(-1));
   state.cityNameInput.addEventListener('input', (event) => renderCityName(event.target.value));
   state.currentTempButton.addEventListener('click', async () => getRealTimeTemperature(state.cityNameInput.value));
-}
+};
 
 const loadControls = () => {
   state.increaseTempControl = document.getElementById('increaseTempControl');
