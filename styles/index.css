@@ -63,6 +63,17 @@ grid-row: 2;
     border-radius: 10px
 }
 
+.temperature__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+#temperature__title {
+  margin: 0;
+}
+
 .sky__section {
 grid-row: 3;
 }

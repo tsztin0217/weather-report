@@ -121,10 +121,13 @@ const resetCityName = (defaultCityName) => {
 // ---------- Rendering ----------
 
 const renderTemp = () => {
-  const displayTemp = getDisplayedTemperature();
-  state.tempValue.textContent = displayTemp + (state.isCelsius ? '°C' : '°F');
+  state.tempValue.textContent = getDisplayedTemperature();
   state.tempValue.style.color = getTempColor(state.temperatureFahrenheit);
 };
+
+const renderTemperatureHeader = () => {
+  state.temperatureTitle.textContent = `Temperature °${state.isCelsius ? 'C' : 'F'}`;
+}
 
 const renderBackground = () => {
   document.body.style.background = getBackgroundForTemperature(state.temperatureFahrenheit);
@@ -162,6 +165,7 @@ const render = () => {
   renderSky(state.skySelect.value);
   renderCityName(state.cityNameInput.value);
   renderBackground();
+  renderTemperatureHeader();
 };
 
 // ---------- Events & initialization ----------
@@ -191,6 +195,7 @@ const loadControls = () => {
   state.skySelect = document.getElementById('skySelect');
   state.cityNameReset = document.getElementById('cityNameReset');
   state.toggleTempUnitButton = document.getElementById('toggleTempUnit');
+  state.temperatureTitle = document.getElementById('temperature__title');
 };
 
 loadControls();
