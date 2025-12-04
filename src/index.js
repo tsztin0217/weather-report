@@ -8,7 +8,7 @@ const state = {
 
 const findLatitudeAndLongitude = async (query) => {
   try {
-    const response = await axios.get('http://127.0.0.1:5000/location', {
+    const response = await axios.get('https://tsztin0217.pythonanywhere.com/location', {
       params: {
         q: query,
       }
@@ -22,7 +22,7 @@ const findLatitudeAndLongitude = async (query) => {
 
 const findTemFromCoordinates = async (lat, lon) => {
   try {
-    const response = await axios.get('http://127.0.0.1:5000/weather', {
+    const response = await axios.get('https://tsztin0217.pythonanywhere.com/weather', {
       params: {
         lat: lat,
         lon: lon,
