@@ -1,9 +1,9 @@
 const state = {
-  temp: 60,
+  temperatureFahrenheit: 60,
   defaultCityName: 'Seattle',
 };
 
-// ---------- Pure helpers ----------
+// ---------- API helpers ----------
 
 const findLatitudeAndLongitude = async (query) => {
   try {
@@ -35,16 +35,18 @@ const findTemFromCoordinates = async (lat, lon) => {
   }
 };
 
+// ---------- Pure helpers ----------
+
 const convertKelvinToFahrenheit = (kelvinTemp) => {
   return Math.round((kelvinTemp - 273.15) * 9/5 + 32);
 };
 
 const getTempColor = (temp) => {
-  if (temp >= 80) return '#ff3333ff';
-  if (temp >= 70) return '#ff8d1a';
-  if (temp >= 60) return '#ffff00';
-  if (temp >= 50) return '#12e02eff';
-  return '#2651ffff';
+  if (temp >= 80) return '#a83232';
+  if (temp >= 70) return '#a8783b';
+  if (temp >= 60) return '#7c7f3a';
+  if (temp >= 50) return '#3e6b56';
+  return '#3d5a80';
 };
 
 const getLandscapeForTemp = (temp) => {
@@ -68,18 +70,35 @@ const getSkyForWeather = (weather) => {
   }
 };
 
+const getBackgroundForTemperature = (temp) => {
+  if (temp >= 80) return 'linear-gradient(#5a1d1d, #a83232)';
+  if (temp >= 70) return 'linear-gradient(#4b2e0f, #a8783b)';
+  if (temp >= 60) return 'linear-gradient(#2d331a, #7c7f3a)';
+  if (temp >= 50) return 'linear-gradient(#1b2e24, #3e6b56)';
+  return 'linear-gradient(#1a2238, #3d5a80)';
+};
+
 const createImage = (imgFileName) => {
   const image = document.createElement('img');
   image.src = `./imgs/${imgFileName}`;
   return image;
 };
 
+// ---------- Business logic ----------
+
+const changeTemperatureBy = (delta) => {
+  state.temperatureFahrenheit += delta;
+  render();
+};
 
 const getRealTimeTemperature = async (cityName) => {
-  const coords = await findLatitudeAndLongitude(cityName);
-  const kelvinTemp = await findTemFromCoordinates(coords.latitude, coords.longitude);
+  const coordinates = await findLatitudeAndLongitude(cityName);
+  if (!coordinates) return;
 
-  state.temp = convertKelvinToFahrenheit(kelvinTemp);
+  const kelvinTemp = await findTemFromCoordinates(coordinates.latitude, coordinates.longitude);
+  if (kelvinTemp == null) return;
+
+  state.temperatureFahrenheit = convertKelvinToFahrenheit(kelvinTemp);
   render();
 };
 
@@ -88,30 +107,29 @@ const resetCityName = (defaultCityName) => {
   renderCityName(defaultCityName);
 }
 
-// ---------- State + rendering ----------
-
-const changeTemperatureBy = (delta) => {
-  state.temp += delta;
-  render();
-};
+// ---------- Rendering ----------
 
 const renderTemp = () => {
-  state.tempValue.textContent = state.temp;
-  state.tempValue.style.color = getTempColor(state.temp);
+  state.tempValue.textContent = state.temperatureFahrenheit;
+  state.tempValue.style.color = getTempColor(state.temperatureFahrenheit);
+};
+
+const renderBackground = () => {
+  document.body.style.background = getBackgroundForTemperature(state.temperatureFahrenheit);
 };
 
 const renderLandscape = () => {
   // Extremely hot: show "this is fine" gif instead of emojis
-  if (state.temp >= 80) {
+  if (state.temperatureFahrenheit >= 80) {
     state.landscape.textContent = '';
     state.landscape.appendChild(createImage('this-is-fine.gif'));
     return;
   }
 
-  state.landscape.textContent = getLandscapeForTemp(state.temp);
+  state.landscape.textContent = getLandscapeForTemp(state.temperatureFahrenheit);
 
   // Extremely cold: add a blue border
-  if (state.temp < 50) {
+  if (state.temperatureFahrenheit < 50) {
     state.landscape.textContent = '';
     state.landscape.appendChild(createImage('freezing-cold.jpg'));
     return;
@@ -131,6 +149,7 @@ const render = () => {
   renderLandscape();
   renderSky(state.skySelect.value);
   renderCityName(state.cityNameInput.value);
+  renderBackground();
 };
 
 // ---------- Events & initialization ----------
