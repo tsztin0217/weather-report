@@ -1,10 +1,42 @@
-// const axios = require('axios');
-// const dotEnv = require('dotenv');
-// dotEnv.config();
+// axios is loaded globally via CDN in index.html
+// No API keys needed here - the proxy server handles that!
+
+// Example axios calls to proxy server:
+// axios.get('http://localhost:5000/location', {
+//     params: {
+//         q: cityName
+//     }
+// })
+// .then(response => {
+//     const lat = response.data[0].lat;
+//     const lon = response.data[0].lon;
+//     return axios.get('http://localhost:5000/weather', {
+//         params: { lat, lon }
+//     });
+// })
+
+const findLatitudeAndLongitude = async (query) => {
+  try {
+    const response = await axios.get('http://127.0.0.1:5000/location', {
+      params: {
+        q: query,
+      }
+    });
+    console.log(`Latitude and Longitude for ${query}:`, response.data[0].lat, response.data[0].lon);
+    return { latitude: response.data[0].lat, longitude: response.data[0].lon };
+  } catch (error) {
+    console.log(`Error searching ${query}:`, error.message);
+    return null;
+  }
+};
+
+
 
 const state = {
   temp: 60
 };
+
+
 
 // ---------- Pure helpers ----------
 
@@ -27,6 +59,12 @@ const createImage = (imgFileName) => {
   const image = document.createElement('img');
   image.src = `./imgs/${imgFileName}`;
   return image;
+};
+
+
+const getRealTimeTemperature = async (cityName) => {
+  await findLatitudeAndLongitude(cityName);
+
 };
 
 // ---------- State + rendering ----------
@@ -75,7 +113,8 @@ const registerEvents = () => {
   state.increaseTempControl.addEventListener('click', () => changeTemperatureBy(1));
   state.decreaseTempControl.addEventListener('click', () => changeTemperatureBy(-1));
   state.cityNameInput.addEventListener('input', (event) => renderCityName(event.target.value));
-};
+  state.currentTempButton.addEventListener('click', async () => getRealTimeTemperature(state.cityNameInput.value));
+}
 
 const loadControls = () => {
   state.increaseTempControl = document.getElementById('increaseTempControl');
@@ -85,6 +124,7 @@ const loadControls = () => {
   state.landscape = document.getElementById('landscape');
   state.cityNameInput = document.getElementById('cityNameInput');
   state.cityNameDisplay = document.getElementById('headerCityName');
+  state.currentTempButton = document.getElementById('currentTempButton');
 };
 
 loadControls();
