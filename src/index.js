@@ -1,8 +1,7 @@
 const state = {
-  temp: 60
+  temp: 60,
+  defaultCityName: 'Seattle',
 };
-
-
 
 // ---------- Pure helpers ----------
 
@@ -52,7 +51,21 @@ const getLandscapeForTemp = (temp) => {
   if (temp >= 70) return '🌸🌿🌼__🌷🌻🌿_☘️';
   if (temp >= 60) return '🌾🌾_🍃_🪨_🍃🌾🌾';
   if (temp >= 50) return '🍂🍁_🍃_🪨_🍃🍂🍁';
-  return '🌲🌲⛄️🌲⛄️🌲🌲';
+};
+
+const getSkyForWeather = (weather) => {
+  switch (weather) {
+    case 'Sunny':
+      return '☁️ ☁️ ☁️ ☁️ ☀️ ☁️ ☁️ ☁️ ☁️';
+    case 'Cloudy':
+      return '☁️☁️ ☁️ ☁️☁️ 🌤 ☁️☁️ ☁️ ☁️☁️';
+    case 'Rainy':
+      return '🌧🌈⛈🌧🌧💧⛈🌧🌦🌧💧🌧🌧';
+    case 'Snowy':
+      return '🌨❄️🌨🌨❄️❄️🌨❄️🌨❄️❄️🌨🌨';
+    default:
+      return '';
+  }
 };
 
 const createImage = (imgFileName) => {
@@ -68,8 +81,12 @@ const getRealTimeTemperature = async (cityName) => {
 
   state.temp = convertKelvinToFahrenheit(kelvinTemp);
   render();
-
 };
+
+const resetCityName = (defaultCityName) => {
+  state.cityNameInput.value = defaultCityName;
+  renderCityName(defaultCityName);
+}
 
 // ---------- State + rendering ----------
 
@@ -101,6 +118,10 @@ const renderLandscape = () => {
   }
 };
 
+const renderSky = (skyCondition) => {
+  state.sky.textContent = getSkyForWeather(skyCondition);
+};
+
 const renderCityName = (cityName) => {
   state.cityNameDisplay.textContent = cityName;
 };
@@ -108,6 +129,7 @@ const renderCityName = (cityName) => {
 const render = () => {
   renderTemp();
   renderLandscape();
+  renderSky(state.skySelect.value);
   renderCityName(state.cityNameInput.value);
 };
 
@@ -118,6 +140,8 @@ const registerEvents = () => {
   state.decreaseTempControl.addEventListener('click', () => changeTemperatureBy(-1));
   state.cityNameInput.addEventListener('input', (event) => renderCityName(event.target.value));
   state.currentTempButton.addEventListener('click', async () => getRealTimeTemperature(state.cityNameInput.value));
+  state.skySelect.addEventListener('change', (event) => renderSky(event.target.value));
+  state.cityNameReset.addEventListener('click', () => resetCityName(state.defaultCityName));
 };
 
 const loadControls = () => {
@@ -129,6 +153,8 @@ const loadControls = () => {
   state.cityNameInput = document.getElementById('cityNameInput');
   state.cityNameDisplay = document.getElementById('headerCityName');
   state.currentTempButton = document.getElementById('currentTempButton');
+  state.skySelect = document.getElementById('skySelect');
+  state.cityNameReset = document.getElementById('cityNameReset');
 };
 
 loadControls();
