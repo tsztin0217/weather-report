@@ -1,6 +1,7 @@
 const state = {
   temperatureFahrenheit: 60,
   defaultCityName: 'Seattle',
+  isCelsius: false,
 };
 
 // ---------- API helpers ----------
@@ -39,6 +40,10 @@ const findTemFromCoordinates = async (lat, lon) => {
 
 const convertKelvinToFahrenheit = (kelvinTemp) => {
   return Math.round((kelvinTemp - 273.15) * 9/5 + 32);
+};
+
+const convertFahrenheitToCelsius = (fahrenheitTemp) => {
+  return Math.round((fahrenheitTemp - 32) * 5/9);
 };
 
 const getTempColor = (temp) => {
@@ -84,6 +89,12 @@ const createImage = (imgFileName) => {
   return image;
 };
 
+const getDisplayedTemperature = () => {
+  return state.isCelsius
+    ? convertFahrenheitToCelsius(state.temperatureFahrenheit)
+    : state.temperatureFahrenheit;
+};
+
 // ---------- Business logic ----------
 
 const changeTemperatureBy = (delta) => {
@@ -110,7 +121,8 @@ const resetCityName = (defaultCityName) => {
 // ---------- Rendering ----------
 
 const renderTemp = () => {
-  state.tempValue.textContent = state.temperatureFahrenheit;
+  const displayTemp = getDisplayedTemperature();
+  state.tempValue.textContent = displayTemp + (state.isCelsius ? '°C' : '°F');
   state.tempValue.style.color = getTempColor(state.temperatureFahrenheit);
 };
 
@@ -161,6 +173,10 @@ const registerEvents = () => {
   state.currentTempButton.addEventListener('click', async () => getRealTimeTemperature(state.cityNameInput.value));
   state.skySelect.addEventListener('change', (event) => renderSky(event.target.value));
   state.cityNameReset.addEventListener('click', () => resetCityName(state.defaultCityName));
+  state.toggleTempUnitButton.addEventListener('click', () => {
+    state.isCelsius = !state.isCelsius;
+    render();
+  });
 };
 
 const loadControls = () => {
@@ -174,6 +190,7 @@ const loadControls = () => {
   state.currentTempButton = document.getElementById('currentTempButton');
   state.skySelect = document.getElementById('skySelect');
   state.cityNameReset = document.getElementById('cityNameReset');
+  state.toggleTempUnitButton = document.getElementById('toggleTempUnit');
 };
 
 loadControls();
